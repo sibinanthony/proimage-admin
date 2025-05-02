@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { DashboardIcon, ArchiveIcon, BarChartIcon, DotIcon } from '@radix-ui/react-icons';
+import { DashboardIcon, ArchiveIcon, BarChartIcon, CardStackIcon } from '@radix-ui/react-icons';
 
 const navItems = [
   {
@@ -20,7 +20,7 @@ const navItems = [
   {
     title: 'Transactions',
     href: '/transactions',
-    icon: <DotIcon className="h-4 w-4" />,
+    icon: <CardStackIcon className="h-4 w-4" />,
   },
   {
     title: 'Analytics',
