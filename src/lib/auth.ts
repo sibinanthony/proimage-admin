@@ -1,29 +1,21 @@
 // Simple token-based authentication utilities
 import Cookies from 'js-cookie';
+import { env } from './env';
 
-// Hardcoded admin credentials - in a real app, these would be in a secure database
-const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: 'proimage123'
-};
-
-// Secret key for token generation - would use env variable in production
-const SECRET_KEY = 'proimage-admin-secret-key';
-
-// Token expiration time (24 hours)
-const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+// Token expiration time
+const TOKEN_EXPIRY = env.TOKEN_EXPIRY; // from env file
 
 // Validate credentials
 export function validateCredentials(username: string, password: string) {
-  return username === ADMIN_CREDENTIALS.username && 
-         password === ADMIN_CREDENTIALS.password;
+  return username === env.ADMIN_USERNAME && 
+         password === env.ADMIN_PASSWORD;
 }
 
 // Generate a simple token (in a real app, would use JWT)
 export function generateToken() {
   const payload = {
     exp: Date.now() + TOKEN_EXPIRY,
-    username: ADMIN_CREDENTIALS.username
+    username: env.ADMIN_USERNAME
   };
   
   return btoa(JSON.stringify(payload));
@@ -41,11 +33,6 @@ export function validateToken(token: string) {
       return false;
     }
     
-    // Check if token has the expected username
-    if (payload.username !== ADMIN_CREDENTIALS.username) {
-      return false;
-    }
-    
     return true;
   } catch (error) {
     return false;
@@ -60,7 +47,7 @@ export function setToken(token: string) {
     
     // Set in cookie
     Cookies.set('auth_token', token, { 
-      expires: 1, // 1 day
+      expires: 90, // 3 months
       path: '/',
       sameSite: 'strict'
     });

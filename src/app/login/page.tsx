@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
 export default function LoginPage() {
@@ -11,8 +11,6 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const hasSecurityParam = searchParams.get('as') === 'adhikar';
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
@@ -27,13 +25,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Check for security parameter before attempting login
-      if (!hasSecurityParam) {
-        setError('Unauthorized access');
-        setIsLoading(false);
-        return;
-      }
-      
+      // Send credentials to the server for validation
       const success = await login(username, password);
       if (success) {
         router.push('/dashboard');
@@ -42,6 +34,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setIsLoading(false);
     }

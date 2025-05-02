@@ -28,7 +28,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ProtectedRoute>
-            {children}
+        {children}
           </ProtectedRoute>
         </AuthProvider>
       </body>

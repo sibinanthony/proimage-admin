@@ -1,11 +1,30 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Helper to validate token
+function validateToken(token: string): boolean {
+  try {
+    if (!token) return false;
+    
+    const payload = JSON.parse(atob(token));
+    
+    // Check if token is expired
+    if (payload.exp < Date.now()) {
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const isLoginPage = request.nextUrl.pathname === '/login';
+  const isAuthApiRoute = request.nextUrl.pathname === '/api/auth/login';
   
-  // Skip middleware check for the login page
-  if (isLoginPage) {
+  // Skip middleware check for the login page and auth API
+  if (isLoginPage || isAuthApiRoute) {
     return NextResponse.next();
   }
 
@@ -13,19 +32,22 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('auth_token')?.value || 
                 request.headers.get('authorization')?.replace('Bearer ', '');
 
+  // Validate the token
+  const isValidToken = token ? validateToken(token) : false;
+  
   // Check if accessing API route
   const isApiRoute = request.nextUrl.pathname.startsWith('/api');
   
-  // If no token and it's an API route, return unauthorized
-  if (isApiRoute && !token) {
+  // If invalid token and it's an API route, return unauthorized
+  if (isApiRoute && !isValidToken) {
     return NextResponse.json(
       { error: 'Authentication required' },
       { status: 401 }
     );
   }
   
-  // For UI routes without token, redirect to login
-  if (!token && !isApiRoute) {
+  // For UI routes with invalid token, redirect to login
+  if (!isValidToken && !isApiRoute) {
     const url = new URL('/login', request.url);
     return NextResponse.redirect(url);
   }
