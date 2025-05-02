@@ -105,7 +105,7 @@ export function RevenueChart() {
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>Revenue Overview (Purchase Transactions)</span>
+          <span>Revenue Overview</span>
           <select 
             value={period}
             onChange={(e) => setPeriod(e.target.value)}

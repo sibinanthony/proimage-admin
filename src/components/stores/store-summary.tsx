@@ -8,7 +8,11 @@ import {
   CrossCircledIcon,
   GlobeIcon,
   CalendarIcon,
-  IdCardIcon
+  IdCardIcon,
+  CubeIcon,
+  ImageIcon,
+  RocketIcon,
+  InfoCircledIcon
 } from '@radix-ui/react-icons';
 
 interface StoreSummaryProps {
@@ -37,100 +41,117 @@ export function StoreSummary({
   jobStatusCounts
 }: StoreSummaryProps) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="overflow-hidden">
+      <CardHeader className="py-3">
         <CardTitle>Store Information</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-xl font-bold">{name}</h3>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <GlobeIcon className="h-3 w-3" />
-                <span>{domain}</span>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <IdCardIcon className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Shopify ID</p>
-                  <p className="text-sm text-muted-foreground">{shopifyId}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Created</p>
-                  <p className="text-sm text-muted-foreground">{formatDate(createdAt, 'PPP')}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
+      <CardContent className="p-3">
+        {/* Store Title and Status - Compact Header */}
+        <div className="flex flex-row items-center justify-between mb-3 pb-2 border-b">
+          <div>
+            <h3 className="text-base font-bold flex items-center gap-1">
+              {name}
+              <span className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                 {isActive ? (
-                  <CheckCircledIcon className="h-4 w-4 text-emerald-500" />
+                  <CheckCircledIcon className="h-3 w-3 mr-0.5" />
                 ) : (
-                  <CrossCircledIcon className="h-4 w-4 text-amber-500" />
+                  <CrossCircledIcon className="h-3 w-3 mr-0.5" />
                 )}
-                <div>
-                  <p className="text-sm font-medium">Status</p>
-                  <p className="text-sm text-muted-foreground">
-                    {isActive ? 'Active' : 'Inactive'} • Last active {formatDate(lastActiveDate, 'PP')}
-                  </p>
-                </div>
+                {isActive ? 'Active' : 'Inactive'}
+              </span>
+            </h3>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+              <GlobeIcon className="h-3 w-3" />
+              <span>{domain}</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Main Content Grid - More Compact */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+          {/* Left Column - Compact Store Details (5 columns) */}
+          <div className="md:col-span-5 bg-muted/20 p-2.5 rounded-md">
+            <h4 className="text-xs font-medium flex items-center gap-1 mb-2 text-muted-foreground">
+              <InfoCircledIcon className="h-3.5 w-3.5" />
+              Store Details
+            </h4>
+            
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <p className="text-xs text-muted-foreground">ID</p>
+                <p className="text-xs truncate" title={shopifyId}>{shopifyId}</p>
+              </div>
+              
+              <div>
+                <p className="text-xs text-muted-foreground">Created</p>
+                <p className="text-xs">{formatDate(createdAt, 'PP')}</p>
+              </div>
+              
+              <div>
+                <p className="text-xs text-muted-foreground">Last Active</p>
+                <p className="text-xs">{formatDate(lastActiveDate, 'PP')}</p>
               </div>
             </div>
           </div>
           
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-sm text-muted-foreground">Products</p>
-                <p className="text-2xl font-bold">{totalProducts}</p>
-              </div>
-              
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-sm text-muted-foreground">Jobs</p>
-                <p className="text-2xl font-bold">{totalJobs}</p>
-              </div>
-              
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-sm text-muted-foreground">Images</p>
-                <p className="text-2xl font-bold">{totalImages}</p>
-              </div>
-              
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-sm text-muted-foreground">Success Rate</p>
-                <p className="text-2xl font-bold">
-                  {totalJobs > 0 
-                    ? Math.round((jobStatusCounts['COMPLETED'] || 0) / totalJobs * 100) 
-                    : 0}%
-                </p>
-              </div>
+          {/* Stats - 7 columns in 4 cells */}
+          <div className="md:col-span-7 grid grid-cols-4 gap-3">
+            <div className="bg-muted/20 p-2.5 rounded-md flex flex-col justify-between">
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <CubeIcon className="h-3 w-3" />
+                Products
+              </p>
+              <p className="text-lg font-bold mt-1">{totalProducts}</p>
             </div>
             
-            <div className="bg-muted/50 p-3 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-2">Job Status</p>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-xs text-muted-foreground">Completed</p>
-                  <p className="text-sm font-medium">{jobStatusCounts['COMPLETED'] || 0}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Pending</p>
-                  <p className="text-sm font-medium">{jobStatusCounts['PENDING'] || 0}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Processing</p>
-                  <p className="text-sm font-medium">{jobStatusCounts['PROCESSING'] || 0}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Failed</p>
-                  <p className="text-sm font-medium">{jobStatusCounts['FAILED'] || 0}</p>
-                </div>
+            <div className="bg-muted/20 p-2.5 rounded-md flex flex-col justify-between">
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <RocketIcon className="h-3 w-3" />
+                Jobs
+              </p>
+              <p className="text-lg font-bold mt-1">{totalJobs}</p>
+            </div>
+            
+            <div className="bg-muted/20 p-2.5 rounded-md flex flex-col justify-between">
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
+                Images
+              </p>
+              <p className="text-lg font-bold mt-1">{totalImages}</p>
+            </div>
+            
+            <div className="bg-muted/20 p-2.5 rounded-md flex flex-col justify-between">
+              <p className="text-xs text-muted-foreground">Success Rate</p>
+              <p className="text-lg font-bold mt-1">
+                {totalJobs > 0 
+                  ? Math.round((jobStatusCounts['COMPLETED'] || 0) / totalJobs * 100) 
+                  : 0}%
+              </p>
+            </div>
+          </div>
+          
+          {/* Job Status Rows - Full Width */}
+          <div className="md:col-span-12 bg-muted/20 p-2.5 rounded-md">
+            <h4 className="text-xs font-medium flex items-center gap-1 mb-2 text-muted-foreground">
+              <RocketIcon className="h-3.5 w-3.5" />
+              Job Status
+            </h4>
+            <div className="grid grid-cols-4 gap-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="text-sm font-medium">{jobStatusCounts['COMPLETED'] || 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Pending</p>
+                <p className="text-sm font-medium">{jobStatusCounts['PENDING'] || 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Processing</p>
+                <p className="text-sm font-medium">{jobStatusCounts['PROCESSING'] || 0}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Failed</p>
+                <p className="text-sm font-medium">{jobStatusCounts['FAILED'] || 0}</p>
               </div>
             </div>
           </div>
