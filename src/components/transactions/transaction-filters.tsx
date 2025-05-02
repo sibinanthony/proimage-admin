@@ -166,12 +166,41 @@ export function TransactionFilters({
               <SelectValue placeholder="All Stores" />
             </SelectTrigger>
             <SelectContent>
+              <div className="px-2 py-2">
+                <Input
+                  placeholder="Search stores..."
+                  className="mb-2"
+                  onChange={(e) => {
+                    // This gets handled inside the SelectContent
+                    // and doesn't bubble up to cause navigation issues
+                    e.stopPropagation();
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => {
+                    // Prevent select from closing on typing
+                    if (e.key !== 'Escape' && e.key !== 'Tab') {
+                      e.stopPropagation();
+                    }
+                  }}
+                  id="store-search"
+                />
+              </div>
               <SelectItem value="all">All Stores</SelectItem>
-              {stores.map((store) => (
-                <SelectItem key={store.id} value={store.id}>
-                  {store.name}
-                </SelectItem>
-              ))}
+              {stores
+                .filter(store => {
+                  const searchInput = (document.getElementById('store-search') as HTMLInputElement)?.value.toLowerCase();
+                  if (!searchInput) return true;
+                  return (
+                    store.name.toLowerCase().includes(searchInput) || 
+                    store.id.toLowerCase().includes(searchInput)
+                  );
+                })
+                .map((store) => (
+                  <SelectItem key={store.id} value={store.id}>
+                    {store.name}
+                  </SelectItem>
+                ))
+              }
             </SelectContent>
           </Select>
         </div>

@@ -20,6 +20,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { formatDate, formatNumber } from '@/lib/utils';
 import { CreditTransactionType } from '@prisma/client';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Transaction {
   id: string;
@@ -42,6 +49,7 @@ interface TransactionListProps {
     pageCount: number;
   };
   onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
   isLoading?: boolean;
 }
 
@@ -78,6 +86,7 @@ export function TransactionList({
   transactions, 
   pagination, 
   onPageChange,
+  onPageSizeChange,
   isLoading = false 
 }: TransactionListProps) {
   
@@ -185,8 +194,31 @@ export function TransactionList({
       
       {transactions.length > 0 && pagination.pageCount > 1 && (
         <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {transactions.length} of {pagination.total} transactions
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {transactions.length} of {pagination.total} transactions
+            </div>
+            
+            {onPageSizeChange && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Show</span>
+                <Select
+                  value={pagination.pageSize.toString()}
+                  onValueChange={(value) => onPageSizeChange(Number(value))}
+                >
+                  <SelectTrigger className="h-8 w-16">
+                    <SelectValue placeholder={pagination.pageSize.toString()} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground">per page</span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center space-x-2">

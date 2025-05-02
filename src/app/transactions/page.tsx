@@ -38,7 +38,7 @@ export default function TransactionsPage() {
   const [pagination, setPagination] = useState<Pagination>({
     total: 0,
     page: 1,
-    pageSize: 20,
+    pageSize: Number(searchParams.get('limit') || '20'),
     pageCount: 0
   });
   const [filters, setFilters] = useState({
@@ -103,7 +103,7 @@ export default function TransactionsPage() {
     }
 
     fetchTransactions();
-  }, [pagination.page, filters]);
+  }, [pagination.page, pagination.pageSize, filters]);
 
   // Default summary state
   const [summary, setSummary] = useState({
@@ -119,6 +119,22 @@ export default function TransactionsPage() {
       ...prev,
       page: newPage
     }));
+  };
+
+  // Handle page size change
+  const handlePageSizeChange = (newPageSize: number) => {
+    // Reset to page 1 when changing page size
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+      pageSize: newPageSize
+    }));
+    
+    // Update URL with new page size
+    const params = new URLSearchParams(window.location.search);
+    params.set('limit', newPageSize.toString());
+    params.set('page', '1');
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
   };
 
   // Handle filter changes
@@ -157,6 +173,7 @@ export default function TransactionsPage() {
         transactions={transactions}
         pagination={pagination}
         onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
         isLoading={loading}
       />
     </div>
