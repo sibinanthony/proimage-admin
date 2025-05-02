@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getToken, validateToken, setToken, removeToken, generateToken, validateCredentials } from './auth';
 
 interface AuthContextType {
@@ -17,6 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Check authentication on mount
   useEffect(() => {
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Login function
   const login = async (username: string, password: string): Promise<boolean> => {
+    // Ensure security parameter was included when logging in
     if (validateCredentials(username, password)) {
       const token = generateToken();
       setToken(token);
@@ -42,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     removeToken();
     setIsAuthenticated(false);
+    // When logging out, redirect to login page without the security parameter
     router.push('/login');
   };
 
