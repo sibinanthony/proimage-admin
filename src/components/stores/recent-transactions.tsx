@@ -1,9 +1,11 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/lib/utils';
 import { CreditTransactionType } from '@prisma/client';
+import { ArrowRightIcon } from '@radix-ui/react-icons';
 
 interface Transaction {
   id: string;
@@ -15,14 +17,21 @@ interface Transaction {
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
+  storeId: string;
 }
 
-export function RecentTransactions({ transactions }: RecentTransactionsProps) {
+export function RecentTransactions({ transactions, storeId }: RecentTransactionsProps) {
   if (!transactions || transactions.length === 0) {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Transactions</CardTitle>
+          <Link
+            href={`/transactions?storeId=${storeId}`}
+            className="text-sm text-primary hover:underline inline-flex items-center"
+          >
+            View All <ArrowRightIcon className="ml-1 h-4 w-4" />
+          </Link>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-sm">No transactions found for this store.</p>
@@ -33,8 +42,14 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Recent Transactions</CardTitle>
+        <Link
+          href={`/transactions?storeId=${storeId}`}
+          className="text-sm text-primary hover:underline inline-flex items-center"
+        >
+          View All <ArrowRightIcon className="ml-1 h-4 w-4" />
+        </Link>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

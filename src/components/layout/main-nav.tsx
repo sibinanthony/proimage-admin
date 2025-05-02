@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { DashboardIcon, ArchiveIcon, BarChartIcon } from '@radix-ui/react-icons';
+import { DashboardIcon, ArchiveIcon, BarChartIcon, DotIcon } from '@radix-ui/react-icons';
 
 const navItems = [
   {
@@ -16,6 +16,11 @@ const navItems = [
     title: 'Stores',
     href: '/stores',
     icon: <ArchiveIcon className="h-4 w-4" />,
+  },
+  {
+    title: 'Transactions',
+    href: '/transactions',
+    icon: <DotIcon className="h-4 w-4" />,
   },
   {
     title: 'Analytics',

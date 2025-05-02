@@ -160,6 +160,7 @@ export default function StorePage() {
         
         <RecentTransactions
           transactions={store.recentTransactions}
+          storeId={store.id}
         />
       </div>
       
