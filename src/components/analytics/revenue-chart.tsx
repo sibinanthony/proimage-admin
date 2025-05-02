@@ -12,6 +12,13 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 
 interface ChartDataItem {
   date: string;
@@ -49,7 +56,7 @@ export function RevenueChart() {
   const [data, setData] = useState<RevenueData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [period, setPeriod] = useState<string>('month');
+  const [period, setPeriod] = useState<string>('thisMonth');
 
   useEffect(() => {
     async function fetchRevenueData() {
@@ -74,6 +81,19 @@ export function RevenueChart() {
 
   // Check if we have any revenue data
   const hasRevenueData = data && data.revenueData && data.revenueData.length > 0;
+
+  // Get period display name
+  const getPeriodDisplayName = (period: string) => {
+    switch (period) {
+      case 'today': return 'Today';
+      case 'thisWeek': return 'This Week';
+      case 'thisMonth': return 'This Month';
+      case 'lastMonth': return 'Last Month';
+      case 'thisYear': return 'This Year';
+      case 'allTime': return 'All Time';
+      default: return 'This Month';
+    }
+  };
 
   if (loading) {
     return (
@@ -104,19 +124,25 @@ export function RevenueChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <span>Revenue Overview</span>
-          <select 
+        <div className="flex justify-between items-center">
+          <CardTitle>Revenue Overview</CardTitle>
+          <Select 
             value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="text-sm rounded-md border border-input bg-transparent px-3 py-1"
+            onValueChange={setPeriod}
           >
-            <option value="week">Past Week</option>
-            <option value="month">Past Month</option>
-            <option value="quarter">Past Quarter</option>
-            <option value="year">Past Year</option>
-          </select>
-        </CardTitle>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={getPeriodDisplayName(period)} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="thisWeek">This Week</SelectItem>
+              <SelectItem value="thisMonth">This Month</SelectItem>
+              <SelectItem value="lastMonth">Last Month</SelectItem>
+              <SelectItem value="thisYear">This Year</SelectItem>
+              <SelectItem value="allTime">All Time</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-4">
