@@ -1,7 +1,5 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
-
 export default function LoginLayout({
   children,
 }: Readonly<{

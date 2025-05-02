@@ -14,7 +14,7 @@ function validateToken(token: string): boolean {
     }
     
     return true;
-  } catch (error) {
+  } catch (_) {
     return false;
   }
 }

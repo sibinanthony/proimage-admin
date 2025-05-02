@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
     
     // Build the search and filter conditions with proper typing
-    let where: Prisma.storesWhereInput = {};
+    const where: Prisma.storesWhereInput = {};
     
     // Search filter
     if (search) {

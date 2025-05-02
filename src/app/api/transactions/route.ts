@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { CreditTransactionType } from '@prisma/client';
+import { CreditTransactionType, Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
   try {
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit;
     
     // Build the query conditions
-    let where: any = {};
+    const where: Prisma.credit_transactionsWhereInput = {};
     
     // Filter by transaction type (skip if 'all' or null)
     if (typeParam && typeParam !== 'all') {
@@ -39,43 +39,46 @@ export async function GET(request: Request) {
           case 'today': {
             const today = new Date(now);
             today.setHours(0, 0, 0, 0);
-            where.createdAt.gte = today;
+            where.createdAt = { ...where.createdAt, gte: today };
             break;
           }
           case 'thisWeek': {
             const startOfWeek = new Date(now);
             startOfWeek.setDate(now.getDate() - now.getDay()); // Sunday
             startOfWeek.setHours(0, 0, 0, 0);
-            where.createdAt.gte = startOfWeek;
+            where.createdAt = { ...where.createdAt, gte: startOfWeek };
             break;
           }
           case 'thisMonth': {
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            where.createdAt.gte = startOfMonth;
+            where.createdAt = { ...where.createdAt, gte: startOfMonth };
             break;
           }
           case 'lastMonth': {
             const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
             const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-            where.createdAt.gte = startOfLastMonth;
-            where.createdAt.lte = endOfLastMonth;
+            where.createdAt = { 
+              ...where.createdAt, 
+              gte: startOfLastMonth,
+              lte: endOfLastMonth 
+            };
             break;
           }
           case 'last3Months': {
             const threeMonthsAgo = new Date(now);
             threeMonthsAgo.setMonth(now.getMonth() - 3);
-            where.createdAt.gte = threeMonthsAgo;
+            where.createdAt = { ...where.createdAt, gte: threeMonthsAgo };
             break;
           }
           case 'last6Months': {
             const sixMonthsAgo = new Date(now);
             sixMonthsAgo.setMonth(now.getMonth() - 6);
-            where.createdAt.gte = sixMonthsAgo;
+            where.createdAt = { ...where.createdAt, gte: sixMonthsAgo };
             break;
           }
           case 'thisYear': {
             const startOfYear = new Date(now.getFullYear(), 0, 1);
-            where.createdAt.gte = startOfYear;
+            where.createdAt = { ...where.createdAt, gte: startOfYear };
             break;
           }
           // Default is all time (no filter)
@@ -87,14 +90,14 @@ export async function GET(request: Request) {
       } else {
         // Custom date range
         if (startDateParam) {
-          where.createdAt.gte = new Date(startDateParam);
+          where.createdAt = { ...where.createdAt, gte: new Date(startDateParam) };
         }
         
         if (endDateParam) {
           const endDate = new Date(endDateParam);
           // Set to end of day
           endDate.setHours(23, 59, 59, 999);
-          where.createdAt.lte = endDate;
+          where.createdAt = { ...where.createdAt, lte: endDate };
         }
       }
     }
@@ -158,7 +161,7 @@ export async function GET(request: Request) {
 }
 
 // Helper function to get transaction summary statistics
-async function getTransactionSummary(where: any) {
+async function getTransactionSummary(where: Prisma.credit_transactionsWhereInput) {
   // Get total by transaction type
   const typeSummary = await prisma.credit_transactions.groupBy({
     by: ['type'],

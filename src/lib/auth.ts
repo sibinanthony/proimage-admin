@@ -34,7 +34,7 @@ export function validateToken(token: string) {
     }
     
     return true;
-  } catch (error) {
+  } catch (_) {
     return false;
   }
 }
