@@ -4,7 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { DashboardIcon, ArchiveIcon, BarChartIcon, CardStackIcon } from '@radix-ui/react-icons';
+import { DashboardIcon, ArchiveIcon, BarChartIcon, CardStackIcon, ExitIcon } from '@radix-ui/react-icons';
+import { useAuth } from '@/lib/auth-context';
 
 const navItems = [
   {
@@ -31,6 +32,7 @@ const navItems = [
 
 export function MainNav() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   return (
     <div className="w-full">
@@ -58,6 +60,16 @@ export function MainNav() {
             </Link>
           ))}
         </nav>
+        
+        {/* Logout button */}
+        <button
+          onClick={logout}
+          className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary ml-auto md:ml-8"
+          aria-label="Logout"
+        >
+          <ExitIcon className="h-4 w-4" />
+          <span className="hidden md:inline">Logout</span>
+        </button>
       </div>
       
       {/* Mobile horizontal scroll navigation */}

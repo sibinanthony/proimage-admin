@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Layout } from "@/components/layout/layout";
+import { AuthProvider } from "@/lib/auth-context";
+import { ProtectedRoute } from "@/components/auth/protected-route";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Layout>{children}</Layout>
+        <AuthProvider>
+          <ProtectedRoute>
+            {children}
+          </ProtectedRoute>
+        </AuthProvider>
       </body>
     </html>
   );
