@@ -33,27 +33,53 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex gap-6 md:gap-10 items-center">
-      <Link href="/dashboard" className="hidden items-center space-x-2 md:flex">
-        <span className="hidden font-bold sm:inline-block">ProImage Admin</span>
-      </Link>
-      <nav className="hidden md:flex gap-6">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-              pathname === item.href
-                ? "text-foreground"
-                : "text-muted-foreground"
-            )}
-          >
-            {item.icon}
-            {item.title}
-          </Link>
-        ))}
-      </nav>
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-2 md:mb-0 md:w-full">
+        {/* Logo - visible on all devices */}
+        <Link href="/dashboard" className="flex items-center md:min-w-[180px]">
+          <span className="font-bold text-sm md:text-base">ProImage Admin</span>
+        </Link>
+        
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-8 ml-10">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+                pathname === item.href
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+              )}
+            >
+              {item.icon}
+              {item.title}
+            </Link>
+          ))}
+        </nav>
+      </div>
+      
+      {/* Mobile horizontal scroll navigation */}
+      <div className="md:hidden w-full overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+        <nav className="flex gap-4 min-w-max">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-1 text-xs font-medium whitespace-nowrap px-3 py-1.5 rounded-full border",
+                pathname === item.href
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-muted-foreground border-input hover:bg-muted/50"
+              )}
+            >
+              {item.icon}
+              {item.title}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </div>
   );
 } 

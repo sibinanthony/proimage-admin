@@ -11,11 +11,8 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="container flex h-16 items-center px-4 sm:px-8">
+        <div className="container py-2 md:py-0 md:h-16 flex flex-col md:flex-row items-center px-4 sm:px-8">
           <MainNav />
-          <div className="ml-auto flex items-center space-x-4">
-            {/* User profile/settings can be added here */}
-          </div>
         </div>
       </header>
       <main className="flex-1">
