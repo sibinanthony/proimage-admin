@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+}
+
+model generated_images {
+  id            String    @id
+  imageUrl      String
+  thumbnailUrl  String?
+  width         Int?
+  height        Int?
+  prompt        String?
+  s3Key         String?
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  productId     String
+  jobId         String
+  parentImageId String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime
+  jobs          jobs      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  products      products  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model jobs {
+  id               String             @id
+  status           JobStatus          @default(PENDING)
+  prompt           String?
+  settings         Json?
+  error            String?
+  storeId          String
+  productId        String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  generated_images generated_images[]
+  products         products           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stores           stores             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model products {
+  id                String             @id
+  shopifyId         String             @unique
+  title             String
+  handle            String?
+  status            String?
+  originalImageUrl  String?
+  publishedImageUrl String?
+  storeId           String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime
+  generated_images  generated_images[]
+  jobs              jobs[]
+  stores            stores             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model stores {
+  id                  String                @id
+  shopifyId           String                @unique
+  name                String
+  domain              String
+  accessToken         String?
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  credit_transactions credit_transactions[]
+  jobs                jobs[]
+  products            products[]
+  store_credits       store_credits?
+}
+
+model credit_packages {
+  id        String   @id
+  name      String
+  credits   Int
+  price     Float
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model credit_transactions {
+  id              String                @id
+  storeId         String
+  amount          Int
+  type            CreditTransactionType
+  description     String?
+  shopifyChargeId String?               @unique
+  createdAt       DateTime              @default(now())
+  stores          stores                @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model store_credits {
+  id                    String   @id
+  storeId               String   @unique
+  creditsRemaining      Int      @default(5)
+  totalCreditsPurchased Int      @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime
+  stores                stores   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum CreditTransactionType {
+  PURCHASE
+  USAGE
+  INITIAL_FREE
+  REFUND
+  PROMOTIONAL
+  FREE_ACTIVATION
+}
