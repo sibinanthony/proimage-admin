@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { StoreList } from '@/components/stores/store-list';
+import { StoreStats } from '@/components/stores/store-stats';
 
 export default function StoresPage() {
   return (
@@ -10,6 +11,8 @@ export default function StoresPage() {
       <p className="text-muted-foreground">
         View and manage all stores using the ProImage app.
       </p>
+      
+      <StoreStats />
       <StoreList />
     </div>
   );
