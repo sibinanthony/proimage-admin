@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  images: {
+    domains: [
+      'libromi-larvel-s3.s3.ap-south-1.amazonaws.com',
+      's3.ap-south-1.amazonaws.com'
+    ],
+  },
 };
 
 export default nextConfig;

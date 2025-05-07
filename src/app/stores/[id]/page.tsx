@@ -148,6 +148,7 @@ export default function StorePage() {
         totalJobs={store.stats.totalJobs}
         totalImages={store.stats.totalImages}
         jobStatusCounts={store.stats.jobStatusCounts}
+        storeId={store.id}
       />
       
       <div className="grid gap-6 md:grid-cols-2">

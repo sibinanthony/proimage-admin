@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/lib/utils';
 import { 
@@ -26,6 +27,7 @@ interface StoreSummaryProps {
   totalJobs: number;
   totalImages: number;
   jobStatusCounts: Record<string, number>;
+  storeId: string;
 }
 
 export function StoreSummary({
@@ -38,36 +40,34 @@ export function StoreSummary({
   totalProducts,
   totalJobs,
   totalImages,
-  jobStatusCounts
+  jobStatusCounts,
+  storeId
 }: StoreSummaryProps) {
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="py-3">
-        <CardTitle>Store Information</CardTitle>
-      </CardHeader>
-      <CardContent className="p-3">
-        {/* Store Title and Status - Compact Header */}
-        <div className="flex flex-row items-center justify-between mb-3 pb-2 border-b">
-          <div>
-            <h3 className="text-base font-bold flex items-center gap-1">
+    <Card>
+      <CardHeader className="border-b pb-3">
+        <div className="flex flex-col space-y-1.5">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center">
+              <GlobeIcon className="mr-2 h-5 w-5" />
               {name}
-              <span className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                {isActive ? (
-                  <CheckCircledIcon className="h-3 w-3 mr-0.5" />
-                ) : (
-                  <CrossCircledIcon className="h-3 w-3 mr-0.5" />
-                )}
-                {isActive ? 'Active' : 'Inactive'}
-              </span>
-            </h3>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-              <GlobeIcon className="h-3 w-3" />
-              <span>{domain}</span>
+            </CardTitle>
+            <div className="flex items-center">
+              <div className={`flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                isActive 
+                ? 'bg-green-50 text-green-700' 
+                : 'bg-red-50 text-red-700'
+              }`}>
+                {isActive 
+                  ? <><CheckCircledIcon className="mr-1 h-3 w-3" /> Active</> 
+                  : <><CrossCircledIcon className="mr-1 h-3 w-3" /> Inactive</>}
+              </div>
             </div>
           </div>
+          <p className="text-sm text-muted-foreground">{domain}</p>
         </div>
-        
-        {/* Main Content Grid - More Compact */}
+      </CardHeader>
+      <CardContent className="pt-4">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           {/* Left Column - Compact Store Details (5 columns) */}
           <div className="md:col-span-5 bg-muted/20 p-2.5 rounded-md">
@@ -117,7 +117,17 @@ export function StoreSummary({
                 <ImageIcon className="h-3 w-3" />
                 Images
               </p>
-              <p className="text-lg font-bold mt-1">{totalImages}</p>
+              <div className="flex justify-between items-end mt-1">
+                <p className="text-lg font-bold">{totalImages}</p>
+                {totalImages > 0 && (
+                  <Link
+                    href={`/stores/${storeId}/images`}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    View All
+                  </Link>
+                )}
+              </div>
             </div>
             
             <div className="bg-muted/20 p-2.5 rounded-md flex flex-col justify-between">
@@ -134,21 +144,25 @@ export function StoreSummary({
           <div className="md:col-span-12 bg-muted/20 p-2.5 rounded-md">
             <h4 className="text-xs font-medium flex items-center gap-1 mb-2 text-muted-foreground">
               <RocketIcon className="h-3.5 w-3.5" />
-              Job Status
+              Job Status Breakdown
             </h4>
-            <div className="grid grid-cols-4 gap-3">
-              <div>
-                <p className="text-xs text-muted-foreground">Completed</p>
-                <p className="text-sm font-medium">{jobStatusCounts['COMPLETED'] || 0}</p>
-              </div>
+            
+            <div className="grid grid-cols-4 gap-2">
               <div>
                 <p className="text-xs text-muted-foreground">Pending</p>
                 <p className="text-sm font-medium">{jobStatusCounts['PENDING'] || 0}</p>
               </div>
+              
               <div>
                 <p className="text-xs text-muted-foreground">Processing</p>
                 <p className="text-sm font-medium">{jobStatusCounts['PROCESSING'] || 0}</p>
               </div>
+              
+              <div>
+                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="text-sm font-medium">{jobStatusCounts['COMPLETED'] || 0}</p>
+              </div>
+              
               <div>
                 <p className="text-xs text-muted-foreground">Failed</p>
                 <p className="text-sm font-medium">{jobStatusCounts['FAILED'] || 0}</p>
