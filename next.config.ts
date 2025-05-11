@@ -15,7 +15,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: [
       'libromi-larvel-s3.s3.ap-south-1.amazonaws.com',
-      's3.ap-south-1.amazonaws.com'
+      's3.ap-south-1.amazonaws.com',
+      'cdn.shopify.com'
     ],
   },
 };

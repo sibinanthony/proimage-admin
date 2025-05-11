@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
         products: {
           select: {
             title: true,
-            handle: true
+            handle: true,
+            originalImageUrl: true
           }
         },
         jobs: {

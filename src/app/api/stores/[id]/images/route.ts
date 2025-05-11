@@ -33,7 +33,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
         products: {
           select: {
             title: true,
-            handle: true
+            handle: true,
+            originalImageUrl: true
           }
         }
       },

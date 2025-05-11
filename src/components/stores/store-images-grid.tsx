@@ -6,13 +6,16 @@ import {
   Dialog, 
   DialogContent, 
   DialogHeader, 
-  DialogTitle 
+  DialogTitle,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { 
   Card, 
   CardContent 
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/utils';
+import { ArrowLeftIcon, Cross2Icon, ZoomInIcon } from '@radix-ui/react-icons';
 
 interface GeneratedImage {
   id: string;
@@ -26,7 +29,10 @@ interface GeneratedImage {
   products: {
     title: string;
     handle?: string;
+    originalImageUrl?: string;
   };
+  storeName?: string;
+  storeDomain?: string;
 }
 
 interface StoreImagesGridProps {
@@ -36,6 +42,8 @@ interface StoreImagesGridProps {
 
 export function StoreImagesGrid({ images, isLoading = false }: StoreImagesGridProps) {
   const [selectedImage, setSelectedImage] = useState<GeneratedImage | null>(null);
+  const [enlargedView, setEnlargedView] = useState<{image: string, title: string} | null>(null);
+  const [viewType, setViewType] = useState<'original' | 'generated' | null>(null);
   
   if (isLoading) {
     return (
@@ -54,6 +62,12 @@ export function StoreImagesGrid({ images, isLoading = false }: StoreImagesGridPr
       </div>
     );
   }
+
+  // Handler for enlarging an image
+  const handleEnlargeImage = (imageUrl: string, title: string, type: 'original' | 'generated') => {
+    setEnlargedView({ image: imageUrl, title });
+    setViewType(type);
+  };
   
   return (
     <>
@@ -79,22 +93,57 @@ export function StoreImagesGrid({ images, isLoading = false }: StoreImagesGridPr
         ))}
       </div>
       
-      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
-        <DialogContent className="sm:max-w-2xl">
+      {/* Image Detail Dialog */}
+      <Dialog open={!!selectedImage && !enlargedView} onOpenChange={(open) => !open && setSelectedImage(null)}>
+        <DialogContent className="sm:max-w-4xl overflow-y-auto max-h-[90vh] md:max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle>{selectedImage?.products.title}</DialogTitle>
+            <DialogTitle>
+              {selectedImage?.products.title}
+              {selectedImage?.storeName && ` - ${selectedImage.storeName}`}
+            </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-4 pb-2">
             {selectedImage && (
               <>
-                <div className="aspect-square md:aspect-video relative w-full max-h-[70vh]">
-                  <Image
-                    src={selectedImage.imageUrl}
-                    alt={`Generated image for ${selectedImage.products.title}`}
-                    fill
-                    className="object-contain"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {selectedImage.products.originalImageUrl && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Original Image</p>
+                      <div 
+                        className="aspect-square md:aspect-video relative w-full max-h-[40vh] group cursor-pointer"
+                        onClick={() => handleEnlargeImage(selectedImage.products.originalImageUrl!, selectedImage.products.title, 'original')}
+                      >
+                        <Image
+                          src={selectedImage.products.originalImageUrl}
+                          alt={`Original image for ${selectedImage.products.title}`}
+                          fill
+                          className="object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <ZoomInIcon className="h-8 w-8 text-white drop-shadow-md" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Generated Image</p>
+                    <div 
+                      className="aspect-square md:aspect-video relative w-full max-h-[40vh] group cursor-pointer"
+                      onClick={() => handleEnlargeImage(selectedImage.imageUrl, selectedImage.products.title, 'generated')}
+                    >
+                      <Image
+                        src={selectedImage.imageUrl}
+                        alt={`Generated image for ${selectedImage.products.title}`}
+                        fill
+                        className="object-contain"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ZoomInIcon className="h-8 w-8 text-white drop-shadow-md" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -119,6 +168,38 @@ export function StoreImagesGrid({ images, isLoading = false }: StoreImagesGridPr
                 </div>
               </>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Enlarged Image View Dialog */}
+      <Dialog open={!!enlargedView} onOpenChange={(open) => !open && setEnlargedView(null)}>
+        <DialogContent className="sm:max-w-5xl md:max-w-6xl max-h-screen overflow-hidden p-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>
+              {enlargedView?.title} {viewType && `(${viewType === 'original' ? 'Original' : 'Generated'})`}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="relative w-full h-screen flex flex-col">
+            {/* Top bar with title */}
+            <div className="bg-background px-4 py-3 flex items-center justify-center border-b">
+              <p className="text-sm font-medium truncate max-w-[80%] text-center">
+                {enlargedView?.title} {viewType && `(${viewType === 'original' ? 'Original' : 'Generated'})`}
+              </p>
+            </div>
+            
+            {/* Image container */}
+            <div className="flex-1 flex items-center justify-center bg-black/5 p-4 overflow-auto">
+              <div className="relative max-w-full max-h-full">
+                {enlargedView && (
+                  <img
+                    src={enlargedView.image}
+                    alt={enlargedView.title}
+                    className="max-w-full max-h-[calc(100vh-100px)] object-contain"
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
