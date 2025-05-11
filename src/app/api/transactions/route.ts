@@ -200,4 +200,70 @@ async function getTransactionSummary(where: Prisma.credit_transactionsWhereInput
   });
   
   return summary;
+}
+
+// Add POST endpoint to create a new promotional credit transaction
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { storeId, amount, description } = body;
+    
+    if (!storeId || !amount || amount <= 0) {
+      return NextResponse.json(
+        { error: 'Store ID and positive credit amount are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Create a transaction ID
+    const transactionId = crypto.randomUUID();
+    
+    // Start a transaction to ensure both operations complete or none
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the promotional transaction
+      const transaction = await tx.credit_transactions.create({
+        data: {
+          id: transactionId,
+          storeId,
+          amount: parseInt(amount.toString()),
+          type: CreditTransactionType.PROMOTIONAL,
+          description: description || 'Promotional credits added by admin'
+        }
+      });
+      
+      // Update the store_credits table
+      const storeCredit = await tx.store_credits.upsert({
+        where: { storeId },
+        update: {
+          creditsRemaining: {
+            increment: parseInt(amount.toString())
+          }
+        },
+        create: {
+          id: crypto.randomUUID(),
+          storeId,
+          creditsRemaining: parseInt(amount.toString()),
+          totalCreditsPurchased: 0,
+          updatedAt: new Date()
+        }
+      });
+      
+      return {
+        transaction,
+        storeCredit
+      };
+    });
+    
+    return NextResponse.json({
+      success: true,
+      transaction: result.transaction
+    });
+    
+  } catch (error) {
+    console.error('Error adding promotional credits:', error);
+    return NextResponse.json(
+      { error: 'Failed to add promotional credits' },
+      { status: 500 }
+    );
+  }
 } 

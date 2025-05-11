@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { TransactionFilters } from '@/components/transactions/transaction-filters';
 import { TransactionList } from '@/components/transactions/transaction-list';
 import { TransactionSummary } from '@/components/transactions/transaction-summary';
+import { SimpleAssignCreditsDialog } from '@/components/transactions/simple-assign-credits-dialog';
 
 interface Transaction {
   id: string;
@@ -158,7 +159,10 @@ export default function TransactionsPage() {
 
   return (
     <div className="container py-6 space-y-6">
-      <h1 className="text-2xl font-bold">Transactions</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Transactions</h1>
+        <SimpleAssignCreditsDialog />
+      </div>
       
       <TransactionFilters 
         stores={stores}

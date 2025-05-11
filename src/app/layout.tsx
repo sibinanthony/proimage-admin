@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,9 +28,10 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ProtectedRoute>
-        {children}
+            {children}
           </ProtectedRoute>
         </AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

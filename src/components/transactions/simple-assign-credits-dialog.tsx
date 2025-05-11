@@ -1,0 +1,265 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+
+interface Store {
+  id: string;
+  name: string;
+  domain: string;
+}
+
+export function SimpleAssignCreditsDialog() {
+  const [open, setOpen] = useState(false);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [filteredStores, setFilteredStores] = useState<Store[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedStoreId, setSelectedStoreId] = useState<string>('');
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  // Fetch stores for the dropdown
+  useEffect(() => {
+    async function fetchStores() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/stores/list');
+        if (!response.ok) {
+          throw new Error('Failed to fetch stores');
+        }
+        const data = await response.json();
+        setStores(data);
+        setFilteredStores(data);
+      } catch (err) {
+        console.error('Error fetching stores:', err);
+        toast({
+          title: "Error",
+          description: "Could not load stores. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (open) {
+      fetchStores();
+    }
+  }, [open, toast]);
+
+  // Filter stores based on search term
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const term = e.target.value.toLowerCase();
+    setSearchTerm(term);
+    
+    if (!term.trim()) {
+      setFilteredStores(stores);
+      return;
+    }
+    
+    const filtered = stores.filter(
+      store => 
+        store.name.toLowerCase().includes(term) || 
+        store.domain.toLowerCase().includes(term)
+    );
+    setFilteredStores(filtered);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedStoreId) {
+      toast({
+        title: "Error",
+        description: "Please select a store",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!amount || parseInt(amount) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid positive number of credits",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const selectedStore = stores.find(store => store.id === selectedStoreId);
+    if (!selectedStore) {
+      toast({
+        title: "Error",
+        description: "Selected store not found",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      setSubmitting(true);
+      
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          storeId: selectedStoreId,
+          amount: parseInt(amount),
+          description: description || `Promotional credits added for ${selectedStore.name}`
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to assign credits');
+      }
+      
+      // Success
+      toast({
+        title: "Success",
+        description: `${amount} credits added to ${selectedStore.name}`,
+      });
+      
+      // Reset form and close dialog
+      setSelectedStoreId('');
+      setAmount('');
+      setDescription('');
+      setSearchTerm('');
+      setFilteredStores(stores);
+      setOpen(false);
+      
+    } catch (error) {
+      console.error('Error assigning credits:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to assign credits",
+        variant: "destructive"
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Reset search when dialog is opened/closed
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setSearchTerm('');
+      setFilteredStores(stores);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button>Assign Credits</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Assign Promotional Credits</DialogTitle>
+          <DialogDescription>
+            Add promotional credits to a store. These will be added immediately to the store's balance.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="store">Store</Label>
+              <div className="relative">
+                <div className="flex items-center border rounded-md mb-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                  <Search className="h-4 w-4 ml-2 opacity-50" />
+                  <Input
+                    className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    placeholder="Search stores..."
+                    value={searchTerm}
+                    onChange={handleSearch}
+                  />
+                </div>
+                
+                <div className="max-h-[200px] overflow-y-auto border rounded-md">
+                  {isLoading ? (
+                    <div className="p-2 text-center">Loading stores...</div>
+                  ) : filteredStores.length === 0 ? (
+                    <div className="p-2 text-center">No stores found</div>
+                  ) : (
+                    <div className="p-1">
+                      {filteredStores.map((store) => (
+                        <div 
+                          key={store.id}
+                          className={`p-2 cursor-pointer rounded hover:bg-accent ${selectedStoreId === store.id ? 'bg-accent text-accent-foreground' : ''}`}
+                          onClick={() => setSelectedStoreId(store.id)}
+                        >
+                          <div className="font-medium">{store.name}</div>
+                          <div className="text-xs text-muted-foreground">{store.domain}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {selectedStoreId && (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="amount">Credits Amount</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    min="1"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter number of credits"
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="description">Description (Optional)</Label>
+                  <Input
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Reason for adding credits"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={submitting || !selectedStoreId}>
+              {submitting ? "Adding..." : "Add Credits"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+} 
